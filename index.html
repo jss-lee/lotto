@@ -207,6 +207,11 @@
 </div>
 
 <script>
+// ─────────────────────────────────────────────
+// Cloudflare Worker URL (본인 전용)
+// ─────────────────────────────────────────────
+const WORKER_URL = 'https://fancy-truth-cfa0.jsleejss.workers.dev';
+
 const FALLBACK_DATA=[
   [9,18,21,27,44,45],[16,18,20,32,33,39],[4,11,17,22,32,41],[6,13,18,28,30,36],
   [2,22,25,28,34,43],[1,2,15,28,39,45],[3,28,31,32,42,45],[8,10,15,20,29,31],
@@ -225,32 +230,25 @@ const FALLBACK_DATA=[
 const AI_HOT=[34,12,27,13,33,43,1,17,20,7,3,6,26,38,4,37];
 const ALL=Array.from({length:45},(_,i)=>i+1);
 
-const PROXIES=[
-  (url)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  (url)=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
-  (url)=>`https://proxy.cors.sh/${url}`,
-  (url)=>`https://crossorigin.me/${url}`,
-];
-
-async function fetchWithProxy(drwNo){
-  const target=`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${drwNo}`;
-  for(const makeUrl of PROXIES){
-    try{
-      const res=await fetch(makeUrl(target),{signal:AbortSignal.timeout(5000)});
-      if(!res.ok)continue;
-      const data=await res.json();
-      if(data.returnValue==='success')
-        return [data.drwtNo1,data.drwtNo2,data.drwtNo3,data.drwtNo4,data.drwtNo5,data.drwtNo6];
-    }catch(e){continue;}
-  }
+// ─────────────────────────────────────────────
+// Cloudflare Worker로 API 호출
+// ─────────────────────────────────────────────
+async function fetchRound(drwNo){
+  try{
+    const res=await fetch(`${WORKER_URL}?drwNo=${drwNo}`,{signal:AbortSignal.timeout(6000)});
+    if(!res.ok)return null;
+    const data=await res.json();
+    if(data.returnValue==='success')
+      return [data.drwtNo1,data.drwtNo2,data.drwtNo3,data.drwtNo4,data.drwtNo5,data.drwtNo6];
+  }catch(e){}
   return null;
 }
 
-async function fetchBatch(rounds,concurrency=6){
+async function fetchBatch(rounds,concurrency=8){
   const results=new Array(rounds.length).fill(null);
   for(let i=0;i<rounds.length;i+=concurrency){
     const batch=rounds.slice(i,i+concurrency);
-    const fetched=await Promise.all(batch.map(r=>fetchWithProxy(r)));
+    const fetched=await Promise.all(batch.map(r=>fetchRound(r)));
     fetched.forEach((v,j)=>{results[i+j]=v;});
   }
   return results;
@@ -272,7 +270,7 @@ async function loadData(weeks){
   try{
     const sample=rounds.length>50?rounds.slice(-50):rounds;
     setStatus('loading',`⏳ ${sample.length}회차 데이터 수신 중...`);
-    const fetched=await fetchBatch(sample,6);
+    const fetched=await fetchBatch(sample,8);
     const valid=fetched.filter(Boolean);
     successCount=valid.length;
     if(valid.length>=3){
@@ -362,7 +360,6 @@ function weightedSample(pool,weights,n){
   return result;
 }
 
-// 근접번호 쌍 개수 (차이 3 이내)
 function countClosePairs(nums){
   const s=[...nums].sort((a,b)=>a-b);
   let pairs=0;
@@ -373,10 +370,10 @@ function countClosePairs(nums){
 function scoreCombo(nums,strategy){
   if(strategy==='reverse'){
     let score=50;
-    score+=nums.filter(n=>n>=16&&n<=31).length*8; // 중간 생일숫자
-    score+=nums.filter(n=>n>=1&&n<=15).length*5;  // 저번호
-    score+=nums.filter(n=>periodHot.includes(n)).length*5; // 핫넘버
-    score+=countClosePairs(nums)*6; // 근접번호
+    score+=nums.filter(n=>n>=16&&n<=31).length*8;
+    score+=nums.filter(n=>n>=1&&n<=15).length*5;
+    score+=nums.filter(n=>periodHot.includes(n)).length*5;
+    score+=countClosePairs(nums)*6;
     const sum=nums.reduce((a,b)=>a+b,0);
     if(sum>=110&&sum<=160)score+=10;
     return Math.min(95,Math.max(10,Math.round(score)));
@@ -400,55 +397,28 @@ function generate(){
   const bdayMode=opts.bday?(getSelected('bday-row')||'limit'):'any';
   const parityMode=opts.parity?(getSelected('parity-row')||'any'):'any';
   const avoidNums=(strategy==='prize'||strategy==='anti')?[...new Set([...periodHot,...AI_HOT])]:[];
-
   let result=null,tries=0;
   while(!result&&tries<10000){
     tries++;
     let pick;
-
     if(strategy==='random'){
       pick=shuffle(ALL).slice(0,6).sort((a,b)=>a-b);
-
     }else if(strategy==='hot'){
       const weights=ALL.map(n=>periodHot.includes(n)?4:1);
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
-
     }else if(strategy==='prize'){
-      const weights=ALL.map(n=>{
-        let w=1;
-        if(n>=32)w*=(highMode==='high'?4:highMode==='mid'?2.5:1.5);
-        if(n<=31&&bdayMode==='limit')w*=0.4;
-        if(avoidNums.includes(n))w*=0.15;
-        return w;
-      });
+      const weights=ALL.map(n=>{let w=1;if(n>=32)w*=(highMode==='high'?4:highMode==='mid'?2.5:1.5);if(n<=31&&bdayMode==='limit')w*=0.4;if(avoidNums.includes(n))w*=0.15;return w;});
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
-
     }else if(strategy==='reverse'){
-      // 강화된 역패턴
-      // - 16~31 중간 생일숫자 가중치 강화
-      // - 핫넘버 포함
-      // - 고번호 제한 없음
-      const weights=ALL.map(n=>{
-        let w=1;
-        if(n>=1&&n<=15)  w*=2.5;  // 저번호
-        if(n>=16&&n<=31) w*=3.5;  // 중간 생일숫자 (강화)
-        if(n>=32)        w*=1.2;  // 고번호 제한 없음 (살짝만 낮춤)
-        if(periodHot.includes(n)) w*=2.0; // 핫넘버 포함
-        return w;
-      });
+      const weights=ALL.map(n=>{let w=1;if(n>=1&&n<=15)w*=2.5;if(n>=16&&n<=31)w*=3.5;if(n>=32)w*=1.2;if(periodHot.includes(n))w*=2.0;return w;});
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
-      // 합계 110~160 필터
       const sum=pick.reduce((a,b)=>a+b,0);
       if(sum<110||sum>160)continue;
-      // 근접번호(차이 3 이내) 1쌍 이상
       if(countClosePairs(pick)<1)continue;
-
     }else{
-      // anti
       const pool=ALL.filter(n=>!avoidNums.includes(n));
       pick=shuffle(pool.length>=6?pool:ALL).slice(0,6).sort((a,b)=>a-b);
     }
-
     if(!pick||pick.length<6)continue;
     const odd=pick.filter(n=>n%2!==0).length;
     if(parityMode==='3:3'&&odd!==3)continue;
@@ -459,7 +429,6 @@ function generate(){
     result=pick;
   }
   if(!result)result=shuffle(ALL).slice(0,6).sort((a,b)=>a-b);
-
   const score=scoreCombo(result,strategy);
   const sum=result.reduce((a,b)=>a+b,0);
   const odd=result.filter(n=>n%2!==0).length;
@@ -486,8 +455,7 @@ function renderSaved(){
     const scoreBadge=isReverse
       ?`<span class="reverse-badge">역패턴점수 ${s.score}%</span>`
       :`<span class="score-badge" style="background:${sc}">독식확률 ${s.score}%</span>`;
-    const extraTag=isReverse
-      ?`<span class="s-tag">근접번호 ${s.closePairs}쌍</span>`:'';
+    const extraTag=isReverse?`<span class="s-tag">근접번호 ${s.closePairs}쌍</span>`:'';
     return `<div class="saved-item${isReverse?' reverse-item':''}">
       <div class="item-header">
         <span class="item-meta"><strong>${i+1}번</strong> · ${strategyLabels[s.strategy]||s.strategy}</span>
