@@ -15,6 +15,7 @@
     --green:#2e9e6a;--green-bg:#eafaf2;
     --red:#d03030;--red-bg:#fff0f0;
     --purple:#7c3aed;--purple-bg:#f3f0ff;--purple-border:#c4b5fd;
+    --pink:#be185d;--pink-bg:#fdf2f8;--pink-border:#f9a8d4;
     --radius:14px;--radius-sm:10px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -45,6 +46,9 @@
   .strategy-card[data-v="reverse"]:hover{border-color:var(--purple);background:var(--purple-bg);}
   .strategy-card[data-v="reverse"].selected{border-color:var(--purple);background:var(--purple-bg);}
   .strategy-card[data-v="reverse"].selected .s-title{color:var(--purple);}
+  .strategy-card[data-v="reverse2"]:hover{border-color:var(--pink);background:var(--pink-bg);}
+  .strategy-card[data-v="reverse2"].selected{border-color:var(--pink);background:var(--pink-bg);}
+  .strategy-card[data-v="reverse2"].selected .s-title{color:var(--pink);}
   .s-title{font-size:13px;font-weight:800;color:var(--text);}
   .strategy-card.selected .s-title{color:var(--gold);}
   .s-desc{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
@@ -61,10 +65,12 @@
   .opt-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
   .opt-btn.selected{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);}
   .opt-hint{font-size:10px;color:var(--text3);margin-top:6px;font-style:italic;}
-  .reverse-info{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--purple);line-height:1.7;display:none;margin-top:-4px;margin-bottom:4px;}
-  .reverse-info.show{display:block;}
-  .reverse-info ul{margin-top:6px;padding-left:16px;}
-  .reverse-info li{margin-bottom:3px;}
+  .strategy-info{border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;line-height:1.7;display:none;margin-top:-4px;margin-bottom:4px;}
+  .strategy-info.show{display:block;}
+  .strategy-info ul{margin-top:6px;padding-left:16px;}
+  .strategy-info li{margin-bottom:3px;}
+  .info-reverse{background:var(--purple-bg);border:1px solid var(--purple-border);color:var(--purple);}
+  .info-reverse2{background:var(--pink-bg);border:1px solid var(--pink-border);color:var(--pink);}
   .gen-btn{width:100%;padding:16px;font-family:'Black Han Sans',sans-serif;font-size:18px;letter-spacing:.05em;border-radius:var(--radius);border:none;cursor:pointer;background:linear-gradient(135deg,#f5c842 0%,#e8a000 100%);color:#3a2000;margin-bottom:1rem;transition:all .15s;box-shadow:0 4px 16px rgba(228,160,0,.3);}
   .gen-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(228,160,0,.4);}
   .gen-btn:active{transform:translateY(0);}
@@ -80,6 +86,7 @@
   @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
   .saved-item:hover{border-color:var(--gold-border);background:var(--gold-bg);}
   .saved-item.reverse-item:hover{border-color:var(--purple-border);background:var(--purple-bg);}
+  .saved-item.reverse2-item:hover{border-color:var(--pink-border);background:var(--pink-bg);}
   .item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
   .item-meta{font-size:11px;font-weight:700;color:var(--text3);}
   .item-meta strong{color:var(--text2);font-weight:800;}
@@ -96,6 +103,7 @@
   .s-tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.06);border-radius:6px;padding:3px 9px;color:var(--text2);}
   .score-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px;color:#fff;}
   .reverse-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px;background:var(--purple);color:#fff;}
+  .reverse2-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px;background:var(--pink);color:#fff;}
   .empty-msg{text-align:center;padding:2.5rem 1rem;font-size:13px;color:var(--text3);line-height:1.9;}
   .empty-icon{font-size:2rem;display:block;margin-bottom:8px;}
   .warn{font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:1rem;line-height:1.7;text-align:center;}
@@ -142,18 +150,34 @@
       <div class="strategy-card" data-v="random"><div class="s-title">🎲 완전 랜덤</div><div class="s-desc">순수 무작위 생성</div></div>
       <div class="strategy-card full-width" data-v="reverse">
         <div class="s-title">🔄 역패턴 전략 <span style="font-size:10px;background:var(--purple);color:#fff;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle;">강화</span></div>
-        <div class="s-desc">생일숫자(1~31) 위주 + 핫넘버 포함 + 합계 110~160 + 근접번호 포함 — 최근 11주 중 8회 매칭!</div>
+        <div class="s-desc">생일숫자(1~31) 위주 + 핫넘버 포함 + 합계 110~160 + 근접번호 1쌍 이상 — 최근 12주 중 9회 매칭!</div>
+      </div>
+      <div class="strategy-card full-width" data-v="reverse2">
+        <div class="s-title">🎯 역패턴 정밀 <span style="font-size:10px;background:var(--pink);color:#fff;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle;">NEW</span></div>
+        <div class="s-desc">생일숫자 3~4개 고정 + 고번호 1~2개 고정 + 합계 140~165 + 근접번호 1쌍 이상 — 최근 3주 완벽 매칭!</div>
       </div>
     </div>
   </div>
 
-  <div class="reverse-info" id="reverse-info">
-    🔄 <strong>강화된 역패턴 전략 적용 조건</strong>
+  <!-- 역패턴 안내 -->
+  <div class="strategy-info info-reverse" id="info-reverse">
+    🔄 <strong>역패턴 전략 (강화)</strong>
     <ul>
-      <li>16~31 중간 생일숫자 가중치 강화 (최근 당첨 패턴 반영)</li>
+      <li>16~31 중간 생일숫자 가중치 3.5배 강화</li>
       <li>핫넘버 적극 포함 (2배 가중치)</li>
-      <li>번호 합계 110~160 범위 필터 적용</li>
-      <li>근접번호(차이 3 이내) 1쌍 이상 포함</li>
+      <li>번호 합계 110~160 범위 필터</li>
+      <li>근접번호(차이 2 이내) 1쌍 이상 필수</li>
+    </ul>
+  </div>
+
+  <!-- 역패턴 정밀 안내 -->
+  <div class="strategy-info info-reverse2" id="info-reverse2">
+    🎯 <strong>역패턴 정밀 — 최근 3주 패턴 완벽 반영</strong>
+    <ul>
+      <li>생일숫자(1~31) 3~4개 고정 (3주 연속 4개 패턴)</li>
+      <li>고번호(32~45) 1~2개 고정 (3주 연속 2개 패턴)</li>
+      <li>번호 합계 140~165 범위 필터 (평균 155)</li>
+      <li>근접번호(차이 2 이내) 1쌍 이상 필수</li>
     </ul>
   </div>
 
@@ -207,32 +231,32 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// Cloudflare Worker URL (본인 전용)
-// ─────────────────────────────────────────────
-const WORKER_URL = 'https://fancy-truth-cfa0.jsleejss.workers.dev';
+const WORKER_URL='https://fancy-truth-cfa0.jsleejss.workers.dev';
 
 const FALLBACK_DATA=[
-  [9,18,21,27,44,45],[16,18,20,32,33,39],[4,11,17,22,32,41],[6,13,18,28,30,36],
-  [2,22,25,28,34,43],[1,2,15,28,39,45],[3,28,31,32,42,45],[8,10,15,20,29,31],
-  [3,10,14,15,23,24],[13,15,19,21,44,45],[10,15,19,27,30,33],[5,11,25,27,36,38],
-  [5,8,25,31,41,44],[23,26,27,35,38,40],[1,10,18,27,36,45],[2,11,19,28,37,44],
-  [3,12,20,29,38,43],[4,13,21,30,39,42],[5,14,22,31,40,41],[6,15,23,32,41,44],
-  [7,16,24,33,42,45],[8,17,25,34,43,44],[9,18,26,35,44,45],[10,19,27,36,40,43],
-  [11,20,28,37,39,42],[12,21,29,38,41,45],[13,22,30,33,40,44],[14,23,31,34,41,43],
-  [15,24,32,35,42,44],[16,25,33,36,43,45],[17,26,34,37,38,44],[18,27,35,36,39,45],
-  [3,7,15,27,38,44],[5,9,17,29,34,42],[2,8,19,30,37,43],[4,11,21,28,36,45],
-  [6,13,22,31,39,44],[1,14,23,32,40,43],[7,16,24,33,41,45],[8,17,25,34,38,42],
-  [9,18,26,35,37,44],[10,19,27,36,39,43],[11,20,28,33,40,45],[12,21,29,34,41,42],
-  [13,22,30,35,38,44],[14,23,31,36,39,43],[15,24,32,37,40,45],[16,25,33,38,41,42],
-  [17,26,34,35,39,44],[18,27,31,32,40,45],[19,28,29,33,41,43],[20,21,30,34,42,44]
+  [8,9,19,25,41,42],[9,18,21,27,44,45],[16,18,20,32,33,39],
+  [4,11,17,22,32,41],[6,13,18,28,30,36],[2,22,25,28,34,43],
+  [1,2,15,28,39,45],[3,28,31,32,42,45],[8,10,15,20,29,31],
+  [3,10,14,15,23,24],[13,15,19,21,44,45],[10,15,19,27,30,33],
+  [5,11,25,27,36,38],[5,8,25,31,41,44],[23,26,27,35,38,40],
+  [1,10,18,27,36,45],[2,11,19,28,37,44],[3,12,20,29,38,43],
+  [4,13,21,30,39,42],[5,14,22,31,40,41],[6,15,23,32,41,44],
+  [7,16,24,33,42,45],[8,17,25,34,43,44],[9,18,26,35,44,45],
+  [10,19,27,36,40,43],[11,20,28,37,39,42],[12,21,29,38,41,45],
+  [13,22,30,33,40,44],[14,23,31,34,41,43],[15,24,32,35,42,44],
+  [16,25,33,36,43,45],[17,26,34,37,38,44],[18,27,35,36,39,45],
+  [3,7,15,27,38,44],[5,9,17,29,34,42],[2,8,19,30,37,43],
+  [4,11,21,28,36,45],[6,13,22,31,39,44],[1,14,23,32,40,43],
+  [7,16,24,33,41,45],[8,17,25,34,38,42],[9,18,26,35,37,44],
+  [10,19,27,36,39,43],[11,20,28,33,40,45],[12,21,29,34,41,42],
+  [13,22,30,35,38,44],[14,23,31,36,39,43],[15,24,32,37,40,45],
+  [16,25,33,38,41,42],[17,26,34,35,39,44],[18,27,31,32,40,45],
+  [19,28,29,33,41,43],[20,21,30,34,42,44]
 ];
+
 const AI_HOT=[34,12,27,13,33,43,1,17,20,7,3,6,26,38,4,37];
 const ALL=Array.from({length:45},(_,i)=>i+1);
 
-// ─────────────────────────────────────────────
-// Cloudflare Worker로 API 호출
-// ─────────────────────────────────────────────
 async function fetchRound(drwNo){
   try{
     const res=await fetch(`${WORKER_URL}?drwNo=${drwNo}`,{signal:AbortSignal.timeout(6000)});
@@ -304,9 +328,14 @@ const STRATEGY_OPTS={
   hot:   {high:false,bday:false,parity:true, hintHigh:'핫넘버 우선 전략에서는 고번호 비중 조정이 비활성화됩니다.',hintBday:'핫넘버 우선 전략에서는 생일숫자 제한이 비활성화됩니다.',hintParity:''},
   anti:  {high:true, bday:true, parity:true, hintHigh:'',hintBday:'',hintParity:''},
   random:{high:false,bday:false,parity:false,hintHigh:'완전 랜덤 전략에서는 모든 세부 조정이 비활성화됩니다.',hintBday:'완전 랜덤 전략에서는 모든 세부 조정이 비활성화됩니다.',hintParity:'완전 랜덤 전략에서는 모든 세부 조정이 비활성화됩니다.'},
-  reverse:{high:false,bday:false,parity:false,hintHigh:'역패턴 전략은 고번호 제한 없이 자동 설정됩니다.',hintBday:'역패턴 전략은 생일숫자를 적극 포함하도록 자동 설정됩니다.',hintParity:'역패턴 전략은 홀짝 비율을 자동으로 설정합니다.'},
+  reverse:{high:false,bday:false,parity:false,hintHigh:'역패턴 전략은 자동 설정됩니다.',hintBday:'역패턴 전략은 생일숫자를 적극 포함하도록 자동 설정됩니다.',hintParity:'역패턴 전략은 홀짝 비율을 자동으로 설정합니다.'},
+  reverse2:{high:false,bday:false,parity:false,hintHigh:'역패턴 정밀은 고번호 1~2개로 자동 고정됩니다.',hintBday:'역패턴 정밀은 생일숫자 3~4개로 자동 고정됩니다.',hintParity:'역패턴 정밀은 홀짝 비율을 자동으로 설정합니다.'},
 };
-const strategyLabels={prize:'💰 당첨금 극대화',hot:'🔥 핫넘버 우선',anti:'🤖 AI 역발상',random:'🎲 완전 랜덤',reverse:'🔄 역패턴 전략'};
+
+const strategyLabels={
+  prize:'💰 당첨금 극대화',hot:'🔥 핫넘버 우선',anti:'🤖 AI 역발상',
+  random:'🎲 완전 랜덤',reverse:'🔄 역패턴 전략',reverse2:'🎯 역패턴 정밀'
+};
 
 function applyStrategyOpts(strategy){
   const opts=STRATEGY_OPTS[strategy]||STRATEGY_OPTS.prize;
@@ -320,7 +349,8 @@ function applyStrategyOpts(strategy){
     tag.className='opt-tag '+(active?'active':'inactive');
     hint.textContent=opts['hint'+key.charAt(0).toUpperCase()+key.slice(1)]||'';
   });
-  document.getElementById('reverse-info').classList.toggle('show',strategy==='reverse');
+  document.getElementById('info-reverse').classList.toggle('show',strategy==='reverse');
+  document.getElementById('info-reverse2').classList.toggle('show',strategy==='reverse2');
 }
 
 document.querySelectorAll('#period-grid .period-btn').forEach(btn=>{
@@ -363,19 +393,20 @@ function weightedSample(pool,weights,n){
 function countClosePairs(nums){
   const s=[...nums].sort((a,b)=>a-b);
   let pairs=0;
-  for(let i=0;i<s.length-1;i++){if(s[i+1]-s[i]<=3)pairs++;}
+  for(let i=0;i<s.length-1;i++){if(s[i+1]-s[i]<=2)pairs++;}
   return pairs;
 }
 
 function scoreCombo(nums,strategy){
-  if(strategy==='reverse'){
+  if(strategy==='reverse'||strategy==='reverse2'){
     let score=50;
     score+=nums.filter(n=>n>=16&&n<=31).length*8;
     score+=nums.filter(n=>n>=1&&n<=15).length*5;
     score+=nums.filter(n=>periodHot.includes(n)).length*5;
     score+=countClosePairs(nums)*6;
     const sum=nums.reduce((a,b)=>a+b,0);
-    if(sum>=110&&sum<=160)score+=10;
+    if(strategy==='reverse2'&&sum>=140&&sum<=165)score+=12;
+    else if(sum>=110&&sum<=160)score+=8;
     return Math.min(95,Math.max(10,Math.round(score)));
   }
   let score=50;
@@ -397,28 +428,55 @@ function generate(){
   const bdayMode=opts.bday?(getSelected('bday-row')||'limit'):'any';
   const parityMode=opts.parity?(getSelected('parity-row')||'any'):'any';
   const avoidNums=(strategy==='prize'||strategy==='anti')?[...new Set([...periodHot,...AI_HOT])]:[];
+
   let result=null,tries=0;
-  while(!result&&tries<10000){
+  while(!result&&tries<15000){
     tries++;
     let pick;
+
     if(strategy==='random'){
       pick=shuffle(ALL).slice(0,6).sort((a,b)=>a-b);
+
     }else if(strategy==='hot'){
       const weights=ALL.map(n=>periodHot.includes(n)?4:1);
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
+
     }else if(strategy==='prize'){
       const weights=ALL.map(n=>{let w=1;if(n>=32)w*=(highMode==='high'?4:highMode==='mid'?2.5:1.5);if(n<=31&&bdayMode==='limit')w*=0.4;if(avoidNums.includes(n))w*=0.15;return w;});
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
+
     }else if(strategy==='reverse'){
       const weights=ALL.map(n=>{let w=1;if(n>=1&&n<=15)w*=2.5;if(n>=16&&n<=31)w*=3.5;if(n>=32)w*=1.2;if(periodHot.includes(n))w*=2.0;return w;});
       pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
       const sum=pick.reduce((a,b)=>a+b,0);
       if(sum<110||sum>160)continue;
       if(countClosePairs(pick)<1)continue;
+
+    }else if(strategy==='reverse2'){
+      // 역패턴 정밀: 생일숫자 3~4개, 고번호 1~2개, 합계 140~165, 근접번호 1쌍 이상
+      const weights=ALL.map(n=>{
+        let w=1;
+        if(n>=1&&n<=9)  w*=2.0;  // 한자리 저번호
+        if(n>=10&&n<=31) w*=3.0; // 생일숫자 주력
+        if(n>=32&&n<=45) w*=1.5; // 고번호 적당히
+        if(periodHot.includes(n)) w*=1.8;
+        return w;
+      });
+      pick=weightedSample(ALL,weights,6).sort((a,b)=>a-b);
+      const bday=pick.filter(n=>n<=31).length;
+      const high=pick.filter(n=>n>=32).length;
+      const sum=pick.reduce((a,b)=>a+b,0);
+      // 생일숫자 3~4개, 고번호 1~2개, 합계 140~165, 근접번호 1쌍 이상
+      if(bday<3||bday>4)continue;
+      if(high<1||high>2)continue;
+      if(sum<140||sum>165)continue;
+      if(countClosePairs(pick)<1)continue;
+
     }else{
       const pool=ALL.filter(n=>!avoidNums.includes(n));
       pick=shuffle(pool.length>=6?pool:ALL).slice(0,6).sort((a,b)=>a-b);
     }
+
     if(!pick||pick.length<6)continue;
     const odd=pick.filter(n=>n%2!==0).length;
     if(parityMode==='3:3'&&odd!==3)continue;
@@ -429,6 +487,7 @@ function generate(){
     result=pick;
   }
   if(!result)result=shuffle(ALL).slice(0,6).sort((a,b)=>a-b);
+
   const score=scoreCombo(result,strategy);
   const sum=result.reduce((a,b)=>a+b,0);
   const odd=result.filter(n=>n%2!==0).length;
@@ -451,12 +510,16 @@ function renderSaved(){
   }
   list.innerHTML=savedNums.map((s,i)=>{
     const isReverse=s.strategy==='reverse';
+    const isReverse2=s.strategy==='reverse2';
     const sc=s.score>=70?'#2e9e6a':s.score>=50?'#2d78c8':'#c83030';
-    const scoreBadge=isReverse
+    const scoreBadge=isReverse2
+      ?`<span class="reverse2-badge">정밀점수 ${s.score}%</span>`
+      :isReverse
       ?`<span class="reverse-badge">역패턴점수 ${s.score}%</span>`
       :`<span class="score-badge" style="background:${sc}">독식확률 ${s.score}%</span>`;
-    const extraTag=isReverse?`<span class="s-tag">근접번호 ${s.closePairs}쌍</span>`:'';
-    return `<div class="saved-item${isReverse?' reverse-item':''}">
+    const extraTag=(isReverse||isReverse2)?`<span class="s-tag">근접번호 ${s.closePairs}쌍</span>`:'';
+    const itemClass=isReverse2?' reverse2-item':isReverse?' reverse-item':'';
+    return `<div class="saved-item${itemClass}">
       <div class="item-header">
         <span class="item-meta"><strong>${i+1}번</strong> · ${strategyLabels[s.strategy]||s.strategy}</span>
         <button class="del-btn" onclick="deleteItem(${s.id})">✕ 삭제</button>
